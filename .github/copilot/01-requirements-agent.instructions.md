@@ -77,7 +77,7 @@ If you cannot resolve an ambiguity:
 - Halt and await human recovery.
 
 ## Phase Prompt
-Refer to: `prompts/01-requirements.md`
+Refer to: `.github/prompts/01-requirements.md`
 
 ## Success Criteria
 ✓ All ambiguities identified and resolved

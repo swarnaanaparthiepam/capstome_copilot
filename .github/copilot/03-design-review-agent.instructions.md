@@ -105,7 +105,7 @@ If the architecture cannot be approved:
 - Halt and await human recovery.
 
 ## Phase Prompt
-Refer to: `prompts/03-design-review.md`
+Refer to: `.github/prompts/03-design-review.md`
 
 ## Success Criteria
 ✓ All requirements validated for alignment

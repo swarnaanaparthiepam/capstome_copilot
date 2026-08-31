@@ -74,7 +74,7 @@ If you cannot design an architecture:
 - Halt and await human recovery.
 
 ## Phase Prompt
-Refer to: `prompts/02-architecture.md`
+Refer to: `.github/prompts/02-architecture.md`
 
 ## Success Criteria
 ✓ All functional requirements addressed

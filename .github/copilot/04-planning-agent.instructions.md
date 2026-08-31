@@ -81,7 +81,7 @@ If the plan cannot be created:
 - Halt and await human recovery.
 
 ## Phase Prompt
-Refer to: `prompts/04-planning.md`
+Refer to: `.github/prompts/04-planning.md`
 
 ## Success Criteria
 ✓ All architecture components have associated tasks

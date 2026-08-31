@@ -103,7 +103,7 @@ If critical issues are found:
 - Halt and await re-submission.
 
 ## Phase Prompt
-Refer to: `prompts/06-review.md`
+Refer to: `.github/prompts/06-review.md`
 
 ## Success Criteria
 ✓ All approved plan tasks are implemented

@@ -90,7 +90,7 @@ If critical functional requirements fail:
 - Halt and await human recovery.
 
 ## Phase Prompt
-Refer to: `prompts/07-verification.md`
+Refer to: `.github/prompts/07-verification.md`
 
 ## Success Criteria
 ✓ All functional requirements verified (PASS)

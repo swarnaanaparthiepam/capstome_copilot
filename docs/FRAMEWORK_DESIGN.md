@@ -43,33 +43,45 @@ Each SDLC phase (00-08) is a **separate, independent agent** with:
 ┌─────────────────────────────────────────────────────────────┐
 │                       ORCHESTRATOR                          │
 │                  (State & Coordination)                     │
+│                 .github/workflows/orchestrator.md           │
 └──────────────┬──────────────────────────────────────────────┘
                │
     ┌──────────┴──────────┬──────────────┬───────────┬──────┐
     │                     │              │           │      │
     ▼                     ▼              ▼           ▼      ▼
-┌─────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ... ┌──────┐
-│Agent 00 │ │ Agent 01 │ │ Agent 02 │ │ Agent 03 │     │Agent│
-│ (Input) │ │(Req'mts) │ │(Arch)    │ │(Review)  │     │ 08  │
-└────┬────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘     └──┬──┘
-     │ creates   │ creates    │ creates    │ creates      │
-     ▼           ▼            ▼            ▼              ▼
-┌─────────────┐ ┌──────────┐ ┌────────┐ ┌───────────┐ ┌────────┐
-│user-story   │ │require   │ │archi   │ │design-    │ │review  │
-│.md          │ │ments.md  │ │tecture │ │review.md  │ │.md     │
-└─────────────┘ └──────────┘ │.md     │ └───────────┘ └────────┘
-                             └────────┘
-                             
-                             + verification.md (Phase 07)
-                             + impl-plan.md (Phase 04)
-                             + Code branch (Phase 05)
-                             + PR (Phase 08)
-
-                    ┌─────────────────────────┐
-                    │  docs/artifacts/<ID>/   │
-                    │      status.md          │
-                    │  (Central Status Tracker)
-                    └─────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ .github/copilot/                                             │
+│ ├── 00-input-agent.instructions.md                           │
+│ ├── 01-requirements-agent.instructions.md                    │
+│ ├── 02-architecture-agent.instructions.md                    │
+│ ├── 03-design-review-agent.instructions.md                   │
+│ └── ... (8 agents total)                                     │
+└──────────────┬───────────────────────────────────────────────┘
+               │
+    ┌──────────┴──────────┬──────────────┬───────────┬──────┐
+    │                     │              │           │      │
+    ▼                     ▼              ▼           ▼      ▼
+┌──────────────────────────────────────────────────────────────┐
+│ .github/prompts/                                             │
+│ ├── 00-input.md                                              │
+│ ├── 01-requirements.md                                       │
+│ ├── 02-architecture.md                                       │
+│ └── ... (9 prompts)                                          │
+└──────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+              ┌──────────────────────────────┐
+              │  docs/artifacts/<ID>/        │
+              │  ├── user-story.md           │
+              │  ├── requirements.md         │
+              │  ├── architecture.md         │
+              │  ├── design-review.md        │
+              │  ├── impl-plan.md            │
+              │  ├── review.md               │
+              │  ├── verification.md         │
+              │  └── status.md               │
+              │  (Central Status Tracker)    │
+              └──────────────────────────────┘
 ```
 
 ## Phase Flow
@@ -157,13 +169,13 @@ docs/artifacts/
 
 | File | Purpose |
 |------|---------|
-| `.instructions.md` | Shared rules, principles, and conventions for all agents |
-| `ORCHESTRATOR.md` | Orchestrator algorithm, state management, recovery |
-| `README.md` | Complete framework documentation |
-| `QUICKSTART.md` | Quick start guide and common commands |
-| `STATUS_TEMPLATE.md` | Template for User Story status trackers |
-| `prompts/<phase>.md` | Phase-specific prompt (8 files, one per phase) |
-| `agents/<phase>-agent.instructions.md` | Agent-specific instructions (8 files) |
+| `.github/copilot/instructions.md` | Shared rules, principles, and conventions for all agents |
+| `.github/workflows/orchestrator.md` | Orchestrator algorithm, state management, recovery |
+| `docs/README.md` | Complete framework documentation |
+| `docs/QUICKSTART.md` | Quick start guide and common commands |
+| `docs/STATUS_TEMPLATE.md` | Template for User Story status trackers |
+| `.github/prompts/<phase>.md` | Phase-specific prompt (9 files, one per phase) |
+| `.github/copilot/<phase>-agent.instructions.md` | Agent-specific instructions (9 files) |
 
 ## Orchestrator Responsibilities
 

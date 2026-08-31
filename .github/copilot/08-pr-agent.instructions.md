@@ -151,7 +151,7 @@ STATUS: User Story is CLOSED and deployed.
 ```
 
 ## Phase Prompt
-Refer to: `prompts/08-pr.md`
+Refer to: `.github/prompts/08-pr.md`
 
 ## Success Criteria
 ✓ PR created with clear title and description

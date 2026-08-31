@@ -91,7 +91,7 @@ Next: Code reviewer will examine the code and tests.
 ```
 
 ## Phase Prompt
-Refer to: `prompts/05-implementation.md`
+Refer to: `.github/prompts/05-implementation.md`
 
 ## Success Criteria
 ✓ Feature branch created and used

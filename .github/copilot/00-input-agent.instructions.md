@@ -53,7 +53,7 @@ If Jira query fails:
 - Halt and await human recovery action.
 
 ## Phase Prompt
-Refer to: `prompts/00-input.md`
+Refer to: `.github/prompts/00-input.md`
 
 ## Success Criteria
 ✓ User Story artifact created
