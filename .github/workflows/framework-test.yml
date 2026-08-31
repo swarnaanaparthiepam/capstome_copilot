@@ -1,0 +1,152 @@
+name: Agentic SDLC Framework Validation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-framework:
+    name: Validate Framework Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required directories
+        shell: bash
+        run: |
+          set -e
+
+          directories=(
+            ".github/copilot"
+            ".github/prompts"
+            ".github/workflows"
+            "docs/artifacts"
+          )
+
+          echo "Checking required directories..."
+
+          for directory in "${directories[@]}"; do
+            if [[ ! -d "$directory" ]]; then
+              echo "ERROR: Missing directory: $directory"
+              exit 1
+            fi
+
+            echo "OK: $directory"
+          done
+
+      - name: Validate agent instruction files
+        shell: bash
+        run: |
+          set -e
+
+          agents=(
+            "00-input-agent.instructions.md"
+            "01-requirements-agent.instructions.md"
+            "02-architecture-agent.instructions.md"
+            "03-design-review-agent.instructions.md"
+            "04-planning-agent.instructions.md"
+            "05-implementation-agent.instructions.md"
+            "06-review-agent.instructions.md"
+            "07-verification-agent.instructions.md"
+            "08-pr-agent.instructions.md"
+          )
+
+          echo "Checking agent instruction files..."
+
+          for agent in "${agents[@]}"; do
+            file=".github/copilot/$agent"
+
+            if [[ ! -f "$file" ]]; then
+              echo "ERROR: Missing agent instruction: $file"
+              exit 1
+            fi
+
+            echo "OK: $file"
+          done
+
+      - name: Validate phase prompts
+        shell: bash
+        run: |
+          set -e
+
+          prompts=(
+            "00-input.md"
+            "01-requirements.md"
+            "02-architecture.md"
+            "03-design-review.md"
+            "04-planning.md"
+            "05-implementation.md"
+            "06-review.md"
+            "07-verification.md"
+            "08-pr.md"
+          )
+
+          echo "Checking phase prompts..."
+
+          for prompt in "${prompts[@]}"; do
+            file=".github/prompts/$prompt"
+
+            if [[ ! -f "$file" ]]; then
+              echo "ERROR: Missing prompt: $file"
+              exit 1
+            fi
+
+            echo "OK: $file"
+          done
+
+      - name: Validate shared framework files
+        shell: bash
+        run: |
+          set -e
+
+          files=(
+            ".github/copilot/instructions.md"
+            ".github/workflows/orchestrator.md"
+            "docs/README.md"
+            "docs/QUICKSTART.md"
+            "docs/FRAMEWORK_DESIGN.md"
+            "docs/STATUS_TEMPLATE.md"
+          )
+
+          echo "Checking shared framework files..."
+
+          for file in "${files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "ERROR: Missing framework file: $file"
+              exit 1
+            fi
+
+            echo "OK: $file"
+          done
+
+      - name: Validate artifact directory
+        shell: bash
+        run: |
+          set -e
+
+          if [[ ! -d "docs/artifacts" ]]; then
+            echo "ERROR: docs/artifacts directory does not exist"
+            exit 1
+          fi
+
+          echo "OK: Artifact root exists"
+          echo "User Story artifact directories are created dynamically."
+
+      - name: Framework validation summary
+        shell: bash
+        run: |
+          echo ""
+          echo "========================================"
+          echo "Agentic SDLC Framework Validation"
+          echo "========================================"
+          echo "✓ Required directories"
+          echo "✓ 9 agent instruction files"
+          echo "✓ 9 phase prompts"
+          echo "✓ Shared instructions"
+          echo "✓ Orchestrator design"
+          echo "✓ Framework documentation"
+          echo "✓ Artifact directory"
+          echo ""
+          echo "Framework validation: PASSED"
+          echo "========================================"
