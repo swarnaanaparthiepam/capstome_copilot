@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       user_story_id:
-        description: "Jira User Story ID, for example SCRUM-6"
+        description: "Jira User Story ID"
         required: true
         type: string
 
       phase:
-        description: "Phase to validate/run"
+        description: "SDLC phase"
         required: true
         type: choice
         options:
@@ -24,78 +24,93 @@ on:
           - "08"
 
 jobs:
-  run-phase:
-    name: Phase ${{ inputs.phase }} - ${{ inputs.user_story_id }}
+  validate-phase:
+    name: Validate Phase ${{ inputs.phase }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display execution request
-        run: |
-          echo "========================================"
-          echo "Agentic SDLC Phase Runner"
-          echo "========================================"
-          echo "User Story: ${{ inputs.user_story_id }}"
-          echo "Phase:      ${{ inputs.phase }}"
-          echo "========================================"
-
-      - name: Validate phase configuration
+      - name: Validate framework
         shell: bash
         run: |
           set -e
 
+          STORY="${{ inputs.user_story_id }}"
           PHASE="${{ inputs.phase }}"
+          ARTIFACT_DIR="docs/artifacts/$STORY"
 
-          echo "Checking phase configuration..."
+          echo "========================================"
+          echo "Agentic SDLC Phase Validation"
+          echo "========================================"
+          echo "User Story: $STORY"
+          echo "Phase:      $PHASE"
+          echo "========================================"
 
           case "$PHASE" in
             00)
               AGENT=".github/copilot/00-input-agent.instructions.md"
               PROMPT=".github/prompts/00-input.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/user-story.md"
+              OUTPUT="$ARTIFACT_DIR/user-story.md"
               ;;
+
             01)
               AGENT=".github/copilot/01-requirements-agent.instructions.md"
               PROMPT=".github/prompts/01-requirements.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/requirements.md"
+              OUTPUT="$ARTIFACT_DIR/requirements.md"
+              REQUIRED="$ARTIFACT_DIR/user-story.md"
               ;;
+
             02)
               AGENT=".github/copilot/02-architecture-agent.instructions.md"
               PROMPT=".github/prompts/02-architecture.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/architecture.md"
+              OUTPUT="$ARTIFACT_DIR/architecture.md"
+              REQUIRED="$ARTIFACT_DIR/requirements.md"
               ;;
+
             03)
               AGENT=".github/copilot/03-design-review-agent.instructions.md"
               PROMPT=".github/prompts/03-design-review.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/design-review.md"
+              OUTPUT="$ARTIFACT_DIR/design-review.md"
+              REQUIRED="$ARTIFACT_DIR/requirements.md $ARTIFACT_DIR/architecture.md"
               ;;
+
             04)
               AGENT=".github/copilot/04-planning-agent.instructions.md"
               PROMPT=".github/prompts/04-planning.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/impl-plan.md"
+              OUTPUT="$ARTIFACT_DIR/impl-plan.md"
+              REQUIRED="$ARTIFACT_DIR/requirements.md $ARTIFACT_DIR/architecture.md"
               ;;
+
             05)
               AGENT=".github/copilot/05-implementation-agent.instructions.md"
               PROMPT=".github/prompts/05-implementation.md"
-              OUTPUT="Implementation code and tests"
+              OUTPUT="Source code and tests"
+              REQUIRED="$ARTIFACT_DIR/requirements.md $ARTIFACT_DIR/architecture.md $ARTIFACT_DIR/impl-plan.md"
               ;;
+
             06)
               AGENT=".github/copilot/06-review-agent.instructions.md"
               PROMPT=".github/prompts/06-review.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/review.md"
+              OUTPUT="$ARTIFACT_DIR/review.md"
+              REQUIRED="$ARTIFACT_DIR/requirements.md $ARTIFACT_DIR/architecture.md $ARTIFACT_DIR/impl-plan.md"
               ;;
+
             07)
               AGENT=".github/copilot/07-verification-agent.instructions.md"
               PROMPT=".github/prompts/07-verification.md"
-              OUTPUT="docs/artifacts/${{ inputs.user_story_id }}/verification.md"
+              OUTPUT="$ARTIFACT_DIR/verification.md"
+              REQUIRED="$ARTIFACT_DIR/review.md"
               ;;
+
             08)
               AGENT=".github/copilot/08-pr-agent.instructions.md"
               PROMPT=".github/prompts/08-pr.md"
-              OUTPUT="GitHub Pull Request"
+              OUTPUT="Pull Request"
+              REQUIRED="$ARTIFACT_DIR/verification.md"
               ;;
+
             *)
               echo "ERROR: Invalid phase"
               exit 1
@@ -103,68 +118,74 @@ jobs:
           esac
 
           echo ""
-          echo "Agent:"
-          echo "  $AGENT"
+          echo "Agent:  $AGENT"
+          echo "Prompt: $PROMPT"
+          echo "Output: $OUTPUT"
 
           echo ""
-          echo "Prompt:"
-          echo "  $PROMPT"
+          echo "Checking agent..."
+          test -f "$AGENT"
+
+          echo "Checking prompt..."
+          test -f "$PROMPT"
+
+          echo "Checking artifact directory..."
+          test -d "docs/artifacts"
 
           echo ""
-          echo "Expected output:"
-          echo "  $OUTPUT"
+          echo "Checking phase dependencies..."
 
-          echo ""
+          if [ -n "${REQUIRED:-}" ]; then
+            for FILE in $REQUIRED; do
+              if [ ! -f "$FILE" ]; then
+                echo ""
+                echo "BLOCKED"
+                echo "Missing required artifact:"
+                echo "  $FILE"
+                echo ""
+                echo "Phase $PHASE cannot proceed."
+                exit 1
+              fi
 
-          if [ ! -f "$AGENT" ]; then
-            echo "ERROR: Agent instruction file missing: $AGENT"
-            exit 1
+              echo "OK: $FILE"
+            done
           fi
-
-          if [ ! -f "$PROMPT" ]; then
-            echo "ERROR: Prompt file missing: $PROMPT"
-            exit 1
-          fi
-
-          if [ ! -d "docs/artifacts" ]; then
-            echo "ERROR: docs/artifacts directory missing"
-            exit 1
-          fi
-
-          echo "Phase configuration: PASSED"
-
-      - name: Check existing story artifacts
-        shell: bash
-        run: |
-          ARTIFACT_DIR="docs/artifacts/${{ inputs.user_story_id }}"
 
           echo ""
           echo "========================================"
-          echo "Existing Artifacts"
+          echo "Phase validation: PASSED"
+          echo "========================================"
+
+      - name: Show existing artifacts
+        shell: bash
+        run: |
+          STORY="${{ inputs.user_story_id }}"
+          ARTIFACT_DIR="docs/artifacts/$STORY"
+
+          echo ""
+          echo "========================================"
+          echo "Existing Story Artifacts"
           echo "========================================"
 
           if [ -d "$ARTIFACT_DIR" ]; then
             find "$ARTIFACT_DIR" -maxdepth 1 -type f -print | sort
           else
-            echo "No artifact directory exists yet."
-            echo "Expected:"
-            echo "  $ARTIFACT_DIR"
+            echo "No artifacts created yet."
           fi
 
-      - name: Execution handoff
+      - name: Human approval reminder
         run: |
           echo ""
           echo "========================================"
-          echo "Phase Ready"
+          echo "HUMAN-IN-THE-LOOP"
           echo "========================================"
-          echo "User Story: ${{ inputs.user_story_id }}"
-          echo "Phase: ${{ inputs.phase }}"
           echo ""
-          echo "The framework configuration is ready for this phase."
+          echo "Phase ${{ inputs.phase }} is validated."
           echo ""
-          echo "Actual Copilot Agent Mode execution should be"
-          echo "performed through GitHub Copilot/VS Code."
+          echo "Actual Copilot Agent execution occurs"
+          echo "through GitHub Copilot / VS Code."
           echo ""
-          echo "Human approval is required before proceeding"
-          echo "to the next SDLC phase."
+          echo "The next phase MUST NOT proceed until"
+          echo "the current phase has human approval."
+          echo ""
           echo "========================================"
